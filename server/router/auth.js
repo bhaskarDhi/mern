@@ -1,7 +1,8 @@
+var jwt = require('jsonwebtoken');
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-var jwt = require('jsonwebtoken');
+
 require('./../db/conn');
 const User = require('./../model/UserSchema');
 
@@ -29,6 +30,7 @@ router.post('/register', (req, res) => {
 // loginroute
 
 router.post('/signin', async (req, res) => {
+    let token="";
     const { email, password } = req.body;
     if (!email || !password) {
         res.status(500).json({ "message": "please enter your email and password" })
@@ -38,6 +40,8 @@ router.post('/signin', async (req, res) => {
             res.status(500).json({ "message": "please enter valid email address" })
         } else {
             const compare = await bcrypt.compare(password, findUser.password);
+            const token= await findUser.generateAuthToken();
+            console.log(token);
             if (compare) {
                 res.status(200).json({ "message": "user log in successfully" });
             } else {
